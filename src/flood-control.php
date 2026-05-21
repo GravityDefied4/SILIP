@@ -2,9 +2,6 @@
     require 'psgc.php';
     header("Content-Type: application/json");
 
-    // $url = "https://psgc.rootscratch.com/barangay?id=0105518000";
-    // $url = "https://psgc.rootscratch.com/barangay?id=0105526000";
-    // $url = "https://psgc.rootscratch.com/barangay?id=0105526011";
     $url = "https://raw.githubusercontent.com/bettergovph/bettergov/refs/heads/main/src/data/flood_control/flood_control.json";
     $ch = curl_init($url);
 
@@ -15,7 +12,7 @@
 
     if ($response === false) {
         echo json_encode([
-            "error" => "API not responding: " . curl_error($ch)
+            "error" => "Source link not responding: " . curl_error($ch)
         ]);
         curl_close($ch);
         exit;
@@ -26,23 +23,18 @@
 
     if ($httpCode != 200) {
         echo json_encode([
-            "error" => "API returned status code: " . $httpCode
+            "error" => "Source link returned status code: " . $httpCode
         ]);
         exit;
     }
 
-    $n = 0;
     $data = json_decode($response, true);
     $project = $data["features"];
-    $count = 0;
-    
-    while ($n < count($project)) {
-        if ($project[$n]["attributes"]["Region"] == $psgcRegion) {
-            echo json_encode($project[$n], JSON_PRETTY_PRINT);
-            $count++;
+    $psgcRegion = $_GET['region'] ?? null;
+
+    foreach ($project as $proj) {
+        if (isset($proj["attributes"]["Region"]) && strtolower($proj["attributes"]["Region"]) === strtolower($psgcRegion)) {
+            echo json_encode($proj, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
         }
-        $n++;
     }
-    echo "Total number of Region I projects: " . $count;
-    echo "Total number of PH Projects: " . count($project);
 ?>

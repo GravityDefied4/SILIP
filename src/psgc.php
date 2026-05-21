@@ -11,6 +11,7 @@
     $municities = $psgcApi->MunicipalAndCities();
     $municipalities = $psgcApi->Municipal();
     $cities = $psgcApi->City();
-    $psgcRegion = "Region I";
+    // $psgcRegion = "Region I";
+    $psgcRegion = $_GET['region'] ?? null;
     // echo json_encode($provinces, JSON_PRETTY_PRINT);
 ?>
