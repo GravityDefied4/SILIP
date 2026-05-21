@@ -121,7 +121,7 @@ section{
             rgba(4, 45, 34, 0.7),
             rgba(56, 76, 0, 0.3)
         ),
-        url("../images/dashboard-background.jpg");
+        url("images/dashboard-background.jpg");
     min-height: 100vh;
     background-size: cover;
     background-position: center;
