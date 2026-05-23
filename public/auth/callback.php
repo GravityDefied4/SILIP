@@ -53,6 +53,10 @@ $payload = [
 
 $jwt = JWT::encode($payload, $_ENV['JWT_SECRET'], 'HS256');
 
+// Track login — insert new user or update last_login_at
+require_once dirname(__DIR__, 2) . '/src/login-tracker.php';
+silip_track_login($googleUser->getName(), $googleUser->getEmail());
+
 setcookie('silip_jwt', $jwt, [
     'expires'  => $now + 3600 * 8,
     'path'     => '/',
