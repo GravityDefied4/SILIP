@@ -87,9 +87,42 @@ span{
     color: var(--main-color);
     border-bottom: 3px solid var(--main-color);
 }
-.gradient-btn{
+.button-group{
+    margin-top: 2rem;
+    display: flex;
+    gap: 3rem;
+    align-items: center;
+    display: inline-block;
+}
+.solid-button{
     font-family: "Poppins", sans-serif;
     font-weight: 500;
+    font-size: 1.5rem;
+    padding: 1rem 1rem;
+    border-radius: 1.5rem;
+    background-color: var(--main-color);
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: 0.3s ease-in-out;
+    color: white;
+    border: none;
+}
+.lined-button{
+    font-family: "Poppins", sans-serif;
+    font-weight: 500;
+    font-size: 1.5rem;
+    padding: 1rem 1rem;
+    border-radius: 1.5rem;
+    background-color: transparent;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: 0.3s ease-in-out;
+    color: white;
+    border: 2px solid var(--main-color);
+}
+.gradient-btn{
+    font-family: "Poppins", sans-serif;
+    font-weight: 600;
     font-size: 1.5rem;
     padding: 1rem 1rem;
     border-radius: 3rem;
