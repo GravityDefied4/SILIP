@@ -1,6 +1,5 @@
 const regionSelect = document.getElementById('region');
 const provinceSelect = document.getElementById('province');
-const showBtn = document.getElementById('showBtn');
 const resultsTable = document.getElementById('resultsTable');
 let allRegions = [];
 let allProvinces = [];
@@ -82,12 +81,6 @@ regionSelect.addEventListener('change', () => {
     provinceSelect.innerHTML = '<option value="">Select Province</option>';
     provinceSelect.disabled = true;
     resultsTable.innerHTML = '';
-
-    if (!allProvinces || allProvinces.length === 0) {
-        console.warn("Provinces not loaded yet");
-        return;
-    }
-
     if (regionSelect.value) {
         const prefix = regionSelect.value.substring(0, 2);
         allProvinces.filter(prov => prov.psgc_id.substring(0, 2) === prefix)
@@ -97,7 +90,7 @@ regionSelect.addEventListener('change', () => {
         provinceSelect.disabled = false;
         
         // Shows projects for selected Region
-        // fetchAndDisplay('Region', regionSelect.options[regionSelect.selectedIndex].text);
+        fetchAndDisplay('Region', regionSelect.options[regionSelect.selectedIndex].text);
     }
 });
 
@@ -105,22 +98,6 @@ provinceSelect.addEventListener('change', () => {
     resultsTable.innerHTML = '';
     if (provinceSelect.value) {
         // Shows projects for selected Province
-        // fetchAndDisplay('Province', provinceSelect.options[provinceSelect.selectedIndex].text);
-    }
-});
-
-showBtn.addEventListener('click', () => {
-    if (!regionSelect.value) {
-        resultsTable.innerHTML = "<p>Please select a region first.</p>";
-        return;
-    }
-
-    // If province is selected → filter by Province
-    if (provinceSelect.value) {
         fetchAndDisplay('Province', provinceSelect.options[provinceSelect.selectedIndex].text);
-    } 
-    // Otherwise → filter by Region
-    else {
-        fetchAndDisplay('Region', regionSelect.options[regionSelect.selectedIndex].text);
     }
 });
