@@ -5,6 +5,36 @@
     text-decoration: none;
     scroll-behavior: smooth;
 }
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+@keyframes slideInRight {
+    from {
+        opacity: 0;
+        transform: translateX(50px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+@keyframes slideDown {
+    from {
+        transform: translateY(-100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
 :root{
     --bg-color: #0B1F33; /* Primary Background - Deep Navy */
     --second-bg-color: #121417; /* Secondary Background - Charcoal */
@@ -48,6 +78,8 @@ p{
     align-items: center;
     z-index: 1000;
     box-shadow: 5px 10px 10px rgba(0, 0, 0, 0.248);
+    animation: slideDown 0.6s ease-out;
+    transition: transform 0.3s ease-in-out;
 }
 #menu-icon{
     font-size: 3.5rem;
@@ -67,7 +99,6 @@ p{
     cursor: pointer;
     transition: 0.3s ease-in-out;
     margin-bottom: 5px;
-
 }
 .logo:hover{
     transform: scale(1.1);
@@ -98,35 +129,36 @@ span{
 .button-group{
     margin-top: 2rem;
     display: flex;
-    gap: 3rem;
+    gap: 1.5rem;
     align-items: center;
-    display: inline-block;
 }
 .solid-button{
     font-family: "Poppins", sans-serif;
     font-weight: 500;
     font-size: 1.5rem;
     padding: 1rem 1rem;
-    border-radius: 1.5rem;
+    border-radius: 1.2rem;
     background-color: var(--main-color);
     letter-spacing: 1px;
     cursor: pointer;
     transition: 0.3s ease-in-out;
     color: white;
     border: none;
+    animation: fadeInUp 0.9s ease-out 0.5s backwards;
 }
 .lined-button{
     font-family: "Poppins", sans-serif;
     font-weight: 500;
     font-size: 1.5rem;
     padding: 1rem 1rem;
-    border-radius: 1.5rem;
+    border-radius: 1.2rem;
     background-color: transparent;
     letter-spacing: 1px;
     cursor: pointer;
     transition: 0.3s ease-in-out;
     color: white;
     border: 2px solid var(--main-color);
+    animation: fadeInUp 0.9s ease-out 0.6s backwards;
 }
 .gradient-btn{
     font-family: "Poppins", sans-serif;
@@ -145,10 +177,26 @@ span{
     color: var(--second-bg-color);
     border: none;
     white-space: nowrap;
+    
 }
 .gradient-btn:hover{
+    color: var(--text-color);
+    transform: scale(1.05);
+    box-shadow: 0 0 15px var(--third-text-color), 0 0 30px var(--third-text-color);
+}
+
+.lined-button:hover{
+    color: var(--main-color);
+    border: 2px solid var(--main-color);
     transform: scale(1.05);
 }
+
+.solid-button:hover{
+    background-color: var(--main-color);
+    box-shadow: 0 0 10px var(--main-color), 0 0 20px var(--main-color);
+    transform: scale(1.05);
+}
+
 section{
     min-height: 100vh;
     padding: 10rem 10%;
@@ -158,8 +206,8 @@ section{
         linear-gradient(
             to left,
             rgba(11, 31, 51, 0.95) 0%, /* deep navy overlay */
-            rgba(11, 31, 51, 0.95) 40%,
-            rgba(47, 93, 140, 0.18) 60%, /* steel blue tint */
+            rgba(11, 31, 51, 0.95) 45%,
+            rgba(47, 93, 140, 0.18) 65%, /* steel blue tint */
             rgba(47, 107, 90, 0.12) 70%, /* muted emerald tint */
             rgba(11, 31, 51, 0) 75%,
             rgba(11, 31, 51, 0) 100%
@@ -212,7 +260,12 @@ section{
     width: 40%;
 }
 .home-logo{
-    width: 35vw;
+    width: 33vw;
+    animation: fadeInUp 0.8s ease-out;
+    transition: 0.3s ease-in-out;
+}
+.home-logo:hover{
+    transform: scale(1.05);
 }
 
 .home-content h1{
@@ -220,15 +273,18 @@ section{
     font-weight: 700;
     margin-top: 1.5rem;
     line-height: 1;
+    animation: fadeInUp 0.9s ease-out 0.2s backwards;
 }
 .home-content h3{
     margin: 1rem 0;
     font-size: 3rem;
+    animation: fadeInUp 0.9s ease-out 0.3s backwards;
 }
 .home-content p{
     font-size: 1.5rem;
     font-weight: 500;
     line-height: 1.8;
+    animation: fadeInUp 0.9s ease-out 0.4s backwards;
 }
 .home-img img{
     width: 32vw;
