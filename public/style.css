@@ -6,15 +6,15 @@
     scroll-behavior: smooth;
 }
 :root{
-    --bg-color: #210124;
-    --second-bg-color: #394F49;
-    --third-bg-color: #EFDD8D;
-    --fourth-bg-color: #241D01;
-    --fifth-bg-color: rgba(0, 19, 14);
-    --text-color: #EFDD8D;
-    --second-text-color: #F4FDAF;
-    --third-text-color: #394F49;
-    --main-color: #65743A;
+    --bg-color: #0B1F33; /* Primary Background - Deep Navy */
+    --second-bg-color: #121417; /* Secondary Background - Charcoal */
+    --third-bg-color: #2F6B5A; /* Highlight Accent - Muted Emerald */
+    --fourth-bg-color: #8B1E2D; /* Warning/Exposure Accent - Dark Crimson */
+    --fifth-bg-color: rgba(11, 31, 51, 0.85); /* overlay using deep navy */
+    --text-color: #EAEFF5; /* Main Text - Soft White */
+    --second-text-color: #AAB4C3; /* Secondary Text - Cool Gray */
+    --third-text-color: #2F5D8C; /* Primary Accent - Steel Blue */
+    --main-color: #2F5D8C; /* Primary Accent */
 }
 html{
     font-size: 60%;
@@ -47,6 +47,7 @@ p{
     justify-content: space-between;
     align-items: center;
     z-index: 1000;
+    box-shadow: 5px 10px 10px rgba(0, 0, 0, 0.248);
 }
 #menu-icon{
     font-size: 3.5rem;
@@ -67,9 +68,9 @@ p{
 span{
     background: linear-gradient(
         90deg,
-        #EFDD8D 15%,
-        #F4FDAF 70%,
-        #65743A 100%
+        var(--third-bg-color) 15%,
+        var(--second-text-color) 70%,
+        var(--main-color) 100%
     );
     background-clip: text;
     color: transparent;
@@ -127,16 +128,16 @@ span{
     padding: 1rem 1rem;
     border-radius: 3rem;
     background: linear-gradient(
-        90deg, 
-        #EFDD8D 10%,
-        #F4FDAF 100%
+        90deg,
+        var(--third-text-color) 10%,
+        var(--third-bg-color) 100%
     );
     letter-spacing: 1px;
     cursor: pointer;
     transition: 0.3s ease-in-out;
-    color: var(--fourth-bg-color);
+    color: var(--second-bg-color);
     border: none;
-    text-wrap: nowrap;
+    white-space: nowrap;
 }
 .gradient-btn:hover{
     transform: scale(1.05);
@@ -149,10 +150,12 @@ section{
     background:
         linear-gradient(
             to left,
-            rgba(33, 1, 36, 0.9),
-            rgba(0, 19, 14, 0.8),
-            rgba(4, 45, 34, 0.7),
-            rgba(56, 76, 0, 0.3)
+            rgba(11, 31, 51, 0.95) 0%, /* deep navy overlay */
+            rgba(11, 31, 51, 0.95) 40%,
+            rgba(47, 93, 140, 0.18) 60%, /* steel blue tint */
+            rgba(47, 107, 90, 0.12) 70%, /* muted emerald tint */
+            rgba(11, 31, 51, 0) 75%,
+            rgba(11, 31, 51, 0) 100%
         ),
         url("images/dashboard-background.jpg");
     min-height: 100vh;
@@ -165,6 +168,34 @@ section{
     align-items: center;
     padding: 0 5%;
 }
+.about,
+.contact {
+    background: linear-gradient(
+        180deg,
+        var(--bg-color) 10%,
+        var(--third-bg-color) 100%
+    );
+    color: var(--text-color);
+}
+.about .home-content,
+.contact .home-content {
+    max-width: 700px;
+    padding: 4rem 0;
+}
+.about p,
+.contact p,
+.contact ul {
+    font-size: 1.6rem;
+    line-height: 2;
+}
+.contact ul {
+    margin-top: 1.5rem;
+    list-style: disc;
+    padding-left: 2rem;
+}
+.contact a {
+    color: var(--second-text-color);
+}
 .home-content{
     display: flex;
     flex-direction: column;
@@ -172,6 +203,22 @@ section{
     text-align: right;
     flex: 0 0 40%;
     width: 40%;
+}
+.logo-section{
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+.logo-section img{
+    width: 180px;
+    height: auto;
+}
+.logo-section h1{
+    margin: 0;
+    font-size: 7rem;
+    font-weight: 700;
+    line-height: 1;
 }
 .home-content h1{
     font-size: 7rem;
