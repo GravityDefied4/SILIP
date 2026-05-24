@@ -1,224 +1,95 @@
-// frontend/js/app.js
+const regionSelect = document.getElementById('region');
+const provinceSelect = document.getElementById('province');
+const resultsTable = document.getElementById('resultsTable');
 
-// =========================
-// LEAFLET MAP
-// =========================
+let allRegions = [];
+let allProvinces = [];
 
-const map = L.map('map').setView([12.8797, 121.7740], 6);
+// Fetches all initial PSGC data to enable client-side filtering
+console.log("Fetching initial data...");
+Promise.all([
+    fetch('api/psgc.php?type=regions').then(async res => {
+        if (!res.ok) {
+            const err = await res.text();
+            throw new Error('Failed to fetch regions: ' + err);
+        }
+        return res.json();
+    }),
+    fetch('api/psgc.php?type=provinces').then(async res => {
+        if (!res.ok) {
+            const err = await res.text();
+            throw new Error('Failed to fetch provinces: ' + err);
+        }
+        return res.json();
+    })
+]).then(([regions, provinces]) => {
+    console.log("Data loaded successfully.");
+    allRegions = regions;
+    allProvinces = provinces;
 
-L.tileLayer(
-    'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-    {
-        attribution: '&copy; OpenStreetMap contributors'
-    }
-).addTo(map);
-
-// Marker storage
-let markers = [];
-
-// =========================
-// HTML ELEMENTS
-// =========================
-
-const searchButton = document.getElementById("searchButton");
-
-const searchInput = document.getElementById("searchInput");
-
-const projectsContainer =
-    document.getElementById("projectsContainer");
-
-const loading =
-    document.getElementById("loading");
-
-const emptyState =
-    document.getElementById("emptyState");
-
-// =========================
-// SEARCH FUNCTION
-// =========================
-
-async function searchProjects() {
-
-    const location = searchInput.value.trim();
-
-    if(location === "") {
-
-        alert("Please enter a location.");
-
-        return;
-    }
-
-    // Reset UI
-    projectsContainer.innerHTML = "";
-
-    emptyState.classList.add("d-none");
-
-    loading.classList.remove("d-none");
-
-    // Remove previous markers
-    markers.forEach(marker => {
-        map.removeLayer(marker);
+    // Populates region dropdown
+    regions.forEach(reg => {
+        regionSelect.innerHTML += `<option value="${reg.psgc_id}">${reg.name}</option>`;
     });
+    console.log("Region dropdown populated.");
+}).catch(err => {
+    console.error("Error loading initial data:", err);
+    resultsTable.innerHTML = `<p style="color: red;">Error loading initial data: ${err.message}. Check browser console for details.</p>`;
+});
 
-    markers = [];
-
-    try {
-
-        /*
-            Example PHP fetch
-
-            Your PHP should accept:
-            ?location=VALUE
-
-            Example:
-            flood-control.php?location=dagupan
-        */
-
-        const response = await fetch(
-            `../src/flood-control.php?location=${location}`
-        );
-
-        const data = await response.json();
-
-        loading.classList.add("d-none");
-
-        // No results
-        if(data.length === 0) {
-
-            projectsContainer.innerHTML = `
-                <div class="col-12">
-
-                    <div class="empty-state">
-
-                        <h5>
-                            No flood control projects found.
-                        </h5>
-
-                    </div>
-
-                </div>
-            `;
-
-            return;
-        }
-
-        // Add projects
-        data.forEach(project => {
-
-            // =========================
-            // PROJECT CARD
-            // =========================
-
-            const card = document.createElement("div");
-
-            card.classList.add(
-                "col-md-6",
-                "col-lg-4",
-                "mt-4"
-            );
-
-            card.innerHTML = `
-                <div class="project-card shadow-sm">
-
-                    <h5 class="fw-bold">
-                        ${project.project_name}
-                    </h5>
-
-                    <p class="text-muted">
-                        ${project.location}
-                    </p>
-
-                    <hr>
-
-                    <p>
-                        <strong>Budget:</strong>
-                        ${project.amount}
-                    </p>
-
-                    <p>
-                        <strong>Status:</strong>
-                        ${project.status}
-                    </p>
-
-                    <p>
-                        <strong>Agency:</strong>
-                        ${project.agency}
-                    </p>
-
-                </div>
-            `;
-
-            projectsContainer.appendChild(card);
-
-            // =========================
-            // MAP MARKERS
-            // =========================
-
-            if(project.latitude && project.longitude) {
-
-                const marker = L.marker([
-                    project.latitude,
-                    project.longitude
-                ])
-                .addTo(map)
-                .bindPopup(`
-                    <b>${project.project_name}</b><br>
-                    ${project.location}
-                `);
-
-                markers.push(marker);
-            }
-
+// Renders project data into Results Table
+function renderTable(data) {
+    if (data.length > 0) {
+        let html = '<table><thead><tr>';
+        Object.keys(data[0]).forEach(key => html += `<th>${key}</th>`);
+        html += '</tr></thead><tbody>';
+        data.forEach(row => {
+            html += '<tr>';
+            Object.values(row).forEach(val => html += `<td>${val}</td>`);
+            html += '</tr>';
         });
-
-        // Focus map to first result
-        if(data[0].latitude && data[0].longitude) {
-
-            map.setView([
-                data[0].latitude,
-                data[0].longitude
-            ], 11);
-        }
-
-    }
-    catch(error) {
-
-        loading.classList.add("d-none");
-
-        console.error(error);
-
-        projectsContainer.innerHTML = `
-            <div class="col-12">
-
-                <div class="empty-state">
-
-                    <h5>
-                        Error fetching data from server.
-                    </h5>
-
-                </div>
-
-            </div>
-        `;
+        html += '</tbody></table>';
+        resultsTable.innerHTML = html;
+    } else {
+        resultsTable.innerHTML = '<p>No results available, please select a value on the next dropdown if applicable.</p>';
     }
 }
 
-// =========================
-// EVENTS
-// =========================
+// Fetches filtered projects from backend
+function fetchAndDisplay(field, value) {
+    fetch(`api/flood-control.php?field=${encodeURIComponent(field)}&value=${encodeURIComponent(value)}`)
+        .then(res => res.json())
+        .then(data => renderTable(data))
+        .catch(err => {
+            console.error("Error fetching projects:", err);
+            resultsTable.innerHTML = '<p>Error fetching projects.</p>';
+        });
+}
 
-searchButton.addEventListener(
-    "click",
-    searchProjects
-);
+// Populates provinces dropdown based on region selection
+regionSelect.addEventListener('change', () => {
+    provinceSelect.innerHTML = '<option value="">Select Province</option>';
+    provinceSelect.disabled = true;
+    resultsTable.innerHTML = '';
 
-searchInput.addEventListener(
-    "keypress",
-    function(event) {
-
-        if(event.key === "Enter") {
-
-            searchProjects();
-        }
+    if (regionSelect.value) {
+        const prefix = regionSelect.value.substring(0, 2);
+        allProvinces.filter(prov => {return prov.psgc_id.substring(0, 2) === prefix;})
+            .forEach(prov => {
+                provinceSelect.innerHTML += `<option value="${prov.psgc_id}">${prov.name}</option>`;
+            });
+        provinceSelect.disabled = false;
+        
+        // Shows projects for selected Region
+        fetchAndDisplay('Region', regionSelect.options[regionSelect.selectedIndex].text);
     }
-);
+});
+
+provinceSelect.addEventListener('change', () => {
+    resultsTable.innerHTML = '';
+
+    if (provinceSelect.value) {
+        // Shows projects for selected Province
+        fetchAndDisplay('Province', provinceSelect.options[provinceSelect.selectedIndex].text);
+    }
+});
