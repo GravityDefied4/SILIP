@@ -22,7 +22,7 @@ if ($uri === '/SILIP/public/auth/logout')   { require __DIR__ . '/auth/logout.ph
     </style>
 </head>
 <body>
-    <!-- UI for selecting locations -->
+    <!-- Dropdown for selecting locations -->
     <div class="dropdown-container">
         <label>Region:</label>
         <select id="region">
@@ -35,14 +35,18 @@ if ($uri === '/SILIP/public/auth/logout')   { require __DIR__ . '/auth/logout.ph
         </select>
     </div>
 
+    <!-- Project Results Table -->
+    <div id="resultsTable"></div>
+
     <script>
         const regionSelect = document.getElementById('region');
         const provinceSelect = document.getElementById('province');
+        const resultsTable = document.getElementById('resultsTable');
 
         let allRegions = [];
         let allProvinces = [];
 
-        // Fetch all initial PSGC data to enable client-side filtering
+        // Fetches all initial PSGC data to enable client-side filtering
         console.log("Fetching initial data...");
         Promise.all([
             fetch('../src/psgc.php?type=regions').then(async res => {
@@ -64,19 +68,50 @@ if ($uri === '/SILIP/public/auth/logout')   { require __DIR__ . '/auth/logout.ph
             allRegions = regions;
             allProvinces = provinces;
 
-            // Populate region dropdown
+            // Populates region dropdown
             regions.forEach(reg => {
                 regionSelect.innerHTML += `<option value="${reg.psgc_id}">${reg.name}</option>`;
             });
             console.log("Region dropdown populated.");
         }).catch(err => {
             console.error("Error loading initial data:", err);
+            resultsTable.innerHTML = `<p style="color: red;">Error loading initial data: ${err.message}. Check browser console for details.</p>`;
         });
 
-        // Region dropdown listener: populates provinces based on selection
+        // Renders project data into Results Table
+        function renderTable(data) {
+            if (data.length > 0) {
+                let html = '<table><thead><tr>';
+                Object.keys(data[0]).forEach(key => html += `<th>${key}</th>`);
+                html += '</tr></thead><tbody>';
+                data.forEach(row => {
+                    html += '<tr>';
+                    Object.values(row).forEach(val => html += `<td>${val}</td>`);
+                    html += '</tr>';
+                });
+                html += '</tbody></table>';
+                resultsTable.innerHTML = html;
+            } else {
+                resultsTable.innerHTML = '<p>No results available, please select a value on the next dropdown if applicable.</p>';
+            }
+        }
+
+        // Fetches filtered projects from backend
+        function fetchAndDisplay(field, value) {
+            fetch(`../src/flood-control.php?field=${encodeURIComponent(field)}&value=${encodeURIComponent(value)}`)
+                .then(res => res.json())
+                .then(data => renderTable(data))
+                .catch(err => {
+                    console.error("Error fetching projects:", err);
+                    resultsTable.innerHTML = '<p>Error fetching projects.</p>';
+                });
+        }
+
+        // Populates provinces dropdown based on region selection
         regionSelect.addEventListener('change', () => {
             provinceSelect.innerHTML = '<option value="">Select Province</option>';
             provinceSelect.disabled = true;
+            resultsTable.innerHTML = '';
 
             if (regionSelect.value) {
                 const prefix = regionSelect.value.substring(0, 2);
@@ -86,16 +121,16 @@ if ($uri === '/SILIP/public/auth/logout')   { require __DIR__ . '/auth/logout.ph
                     });
                 provinceSelect.disabled = false;
                 
-                // Show projects for Region
+                // Shows projects for selected Region
                 fetchAndDisplay('Region', regionSelect.options[regionSelect.selectedIndex].text);
             }
         });
 
-        // Province dropdown listener: triggers project search
         provinceSelect.addEventListener('change', () => {
+            resultsTable.innerHTML = '';
 
             if (provinceSelect.value) {
-                // Show projects for Province
+                // Shows projects for selected Province
                 fetchAndDisplay('Province', provinceSelect.options[provinceSelect.selectedIndex].text);
             }
         });
