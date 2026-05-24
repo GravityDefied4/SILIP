@@ -1,26 +1,10 @@
-<?php
-    // ── Auth routing ──────────────────────────────────────
-    $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
-    $uri = rtrim($uri, '/');
-
-    if ($uri === '/SILIP/public/auth/login')    { require __DIR__ . '/auth/login.php';    exit; }
-    if ($uri === '/SILIP/public/auth/callback') { require __DIR__ . '/auth/callback.php'; exit; }
-    if ($uri === '/SILIP/public/auth/logout')   { require __DIR__ . '/auth/logout.php';   exit; }
-    // ── End auth routing ──────────────────────────────────
-?>
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Project SILIP</title>
-    <style>
-        table { border-collapse: collapse; width: 100%; margin-top: 20px; }
-        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-        th { background-color: #f2f2f2; }
-        .dropdown-container { margin-bottom: 20px; }
-    </style>
-    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+
     <!--Krona One for headings-->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -29,6 +13,7 @@
     <!--Poppins for body text-->
     <link href="https://fonts.googleapis.com/css2?family=Krona+One&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Syne:wght@400..800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
+    <script src="navbar.js" defer></script>
 </head>
 <body>
     <header class="header">
@@ -105,22 +90,5 @@
             </ul>
         </div>
     </section>
-    
-    <!-- Dropdown for selecting locations -->
-    <div class="dropdown-container">
-        <label>Region:</label>
-        <select id="region">
-            <option value="">Select Region</option>
-        </select>
-
-        <label>Province:</label>
-        <select id="province" disabled>
-            <option value="">Select Province</option>
-        </select>
-    </div>
-
-    <!-- Project Results Table -->
-    <div id="resultsTable"></div>
 </body>
-<script src="script.js"></script>
 </html>
