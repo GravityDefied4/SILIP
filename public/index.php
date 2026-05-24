@@ -49,14 +49,14 @@ if ($uri === '/SILIP/public/auth/logout')   { require __DIR__ . '/auth/logout.ph
         // Fetches all initial PSGC data to enable client-side filtering
         console.log("Fetching initial data...");
         Promise.all([
-            fetch('../src/psgc.php?type=regions').then(async res => {
+            fetch('api/psgc.php?type=regions').then(async res => {
                 if (!res.ok) {
                     const err = await res.text();
                     throw new Error('Failed to fetch regions: ' + err);
                 }
                 return res.json();
             }),
-            fetch('../src/psgc.php?type=provinces').then(async res => {
+            fetch('api/psgc.php?type=provinces').then(async res => {
                 if (!res.ok) {
                     const err = await res.text();
                     throw new Error('Failed to fetch provinces: ' + err);
@@ -98,7 +98,7 @@ if ($uri === '/SILIP/public/auth/logout')   { require __DIR__ . '/auth/logout.ph
 
         // Fetches filtered projects from backend
         function fetchAndDisplay(field, value) {
-            fetch(`../src/flood-control.php?field=${encodeURIComponent(field)}&value=${encodeURIComponent(value)}`)
+            fetch(`api/flood-control.php?field=${encodeURIComponent(field)}&value=${encodeURIComponent(value)}`)
                 .then(res => res.json())
                 .then(data => renderTable(data))
                 .catch(err => {

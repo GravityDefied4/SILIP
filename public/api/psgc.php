@@ -1,6 +1,6 @@
 <?php
     header("Content-Type: application/json");
-    require '../vendor/autoload.php';
+    require '../../vendor/autoload.php';
 
     use Rootscratch\PSGC\PSGC;
 
