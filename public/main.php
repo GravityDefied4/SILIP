@@ -33,6 +33,8 @@
         <select id="province" disabled>
             <option value="">Select Province</option>
         </select>
+
+        <button id="showBtn">Show Table</button>
     </div>
 
     <!-- Project Results Table -->
