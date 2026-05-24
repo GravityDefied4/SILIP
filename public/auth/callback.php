@@ -66,5 +66,5 @@ setcookie('silip_jwt', $jwt, [
 ]);
 
 // Redirect to the main app
-header('Location: /SILIP/public/');
+header('Location: /SILIP/public/main.php');
 exit;

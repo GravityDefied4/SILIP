@@ -163,6 +163,7 @@ span{
 .gradient-btn{
     font-family: "Poppins", sans-serif;
     font-weight: 600;
+    width: 10rem;
     font-size: 1.5rem;
     padding: 1rem 1rem;
     border-radius: 3rem;
