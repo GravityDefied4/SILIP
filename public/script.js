@@ -3,6 +3,7 @@ const provinceSelect = document.getElementById('province');
 const municipalityLabel = document.getElementById('municipalityLabel');
 const municipalitySearch = document.getElementById('municipalitySearch');
 const resultsTable = document.getElementById('resultsTable');
+const loadingOverlay = document.getElementById('loadingOverlay');
 let allRegions = [];
 let allProvinces = [];
 let ncrCities = [];
@@ -15,6 +16,14 @@ let currentFiltered = [];
 
 // NCR PSGC prefix — NCR has no provinces, only cities/municipalities
 const NCR_PREFIX = '13';
+
+function showLoader() {
+    loadingOverlay.classList.remove('hidden');
+}
+
+function hideLoader() {
+    loadingOverlay.classList.add('hidden');
+}
 
 // Header display mapping for user-friendly column names
 const headerMapping = {
@@ -37,6 +46,7 @@ function getDisplayName(key) {
 }
 
 // Fetches all initial PSGC data to enable client-side filtering
+showLoader();
 Promise.all([
     fetch('api/psgc.php?type=regions').then(async res => {
         if (!res.ok) { const err = await res.text(); throw new Error('Failed to fetch regions: ' + err); }
@@ -58,6 +68,8 @@ Promise.all([
     });
 }).catch(err => {
     resultsTable.innerHTML = `<p style="color: red;">Error loading initial data: ${err.message}. Check browser console for details.</p>`;
+}).finally(() => {
+    hideLoader();
 });
 function renderTable(data) {
     currentFiltered = data;
@@ -123,7 +135,7 @@ function renderPage(page) {
     });
 
     html += '</tbody></table>';
-    html += `<div class="pagination" style="margin-top: 1rem; display: flex; justify-content: center; align-items: center; gap: 0.5rem; font-family: 'Poppins', sans-serif; font-size: 3rem;">
+    html += `<div class="pagination" style="margin-top: 1rem;">
         <button onclick="renderPage(1)" ${page === 1 ? 'disabled' : ''}>«</button>
         <button onclick="renderPage(${page - 1})" ${page === 1 ? 'disabled' : ''}>‹</button>
         <span>Page ${page} of ${totalPages} <small>(${data.length} projects)</small></span>
@@ -154,6 +166,7 @@ function applyMunicipalityFilter() {
 function fetchAndDisplay(field, value) {
     municipalitySearch.value = '';
     municipalitySearch.disabled = false;
+    showLoader();
     fetch(`api/flood-control.php?field=${encodeURIComponent(field)}&value=${encodeURIComponent(value)}`)
         .then(res => res.json())
         .then(data => {
@@ -170,6 +183,9 @@ function fetchAndDisplay(field, value) {
         })
         .catch(err => {
             resultsTable.innerHTML = '<div class="empty-state"><p>Error fetching projects.</p></div>';
+        })
+        .finally(() => {
+            hideLoader();
         });
 }
 

@@ -57,9 +57,15 @@
         </div>
 
         <!-- Results Table -->
-        <div id="resultsTable">
-            <div class="empty-state">
-                <p>Select a region to view flood control projects.</p>
+        <div class="results-wrapper">
+            <div id="loadingOverlay" class="loading-overlay hidden">
+                <div class="loader"></div>
+                <span style="font-size: 1.5rem;">Fetching Data…</span>
+            </div>
+            <div id="resultsTable">
+                <div class="empty-state">
+                    <p></p>
+                </div>
             </div>
         </div>
     </div>
