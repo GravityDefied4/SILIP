@@ -5,7 +5,13 @@ const municipalitySearch = document.getElementById('municipalitySearch');
 const resultsTable = document.getElementById('resultsTable');
 let allRegions = [];
 let allProvinces = [];
+let ncrCities = [];
 let currentData = []; // holds the last fetched dataset for client-side filtering
+
+// pagination
+const ROWS_PER_PAGE = 5;
+let currentPage = 1;
+let currentFiltered = [];
 
 // NCR PSGC prefix — NCR has no provinces, only cities/municipalities
 const NCR_PREFIX = '13';
@@ -33,22 +39,18 @@ function getDisplayName(key) {
 // Fetches all initial PSGC data to enable client-side filtering
 Promise.all([
     fetch('api/psgc.php?type=regions').then(async res => {
-        if (!res.ok) {
-            const err = await res.text();
-            throw new Error('Failed to fetch regions: ' + err);
-        }
+        if (!res.ok) { const err = await res.text(); throw new Error('Failed to fetch regions: ' + err); }
         return res.json();
     }),
     fetch('api/psgc.php?type=provinces').then(async res => {
-        if (!res.ok) {
-            const err = await res.text();
-            throw new Error('Failed to fetch provinces: ' + err);
-        }
+        if (!res.ok) { const err = await res.text(); throw new Error('Failed to fetch provinces: ' + err); }
         return res.json();
-    })
-]).then(([regions, provinces]) => {
+    }),
+    fetch('api/flood-control.php?field=Region&value=National Capital Region').then(res => res.json())
+]).then(([regions, provinces, ncrData]) => {
     allRegions = regions;
     allProvinces = provinces;
+    ncrCities = [...new Set(ncrData.map(row => row['Province']).filter(Boolean))].sort();
 
     // Populates region dropdown
     regions.forEach(reg => {
@@ -57,71 +59,86 @@ Promise.all([
 }).catch(err => {
     resultsTable.innerHTML = `<p style="color: red;">Error loading initial data: ${err.message}. Check browser console for details.</p>`;
 });
-
-// Renders project data into Results Table
 function renderTable(data) {
-    if (data.length > 0) {
-        const keys = Object.keys(data[0]);
-        const visibleKeys = keys.filter(k => !['latitude', 'longitude', 'legislativedistrict'].includes(k.toLowerCase()));
-        const isNCR = data.length > 0 && data[0]['Region'] === 'National Capital Region';
+    currentFiltered = data;
+    currentPage = 1;
+    renderPage(currentPage);
+}
 
-        let html = '<table><thead><tr>';
-        visibleKeys.forEach(key => {
-            let label = getDisplayName(key);
-            if (isNCR && key === 'Province') label = 'City';
-            if (isNCR && key === 'Municipality') label = 'District';
-            html += `<th>${label}</th>`;
-        });
-        html += '<th>Map</th>';
-        html += '</tr></thead><tbody>';
+function renderPage(page) {
+    currentPage = page;
+    const data = currentFiltered;
 
-        data.forEach(row => {
-            html += '<tr>';
-
-            // Render only visible columns
-            visibleKeys.forEach(key => {
-                const colClass = `col-${key.toLowerCase()}`;
-                let cellValue = row[key];
-                if (key === 'ContractCost') cellValue = '₱' + Number(cellValue).toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-                if (key === 'StartDate' && cellValue) {
-                    const [m, d, y] = cellValue.split('/');
-                    cellValue = `${y}-${m.padStart(2,'0')}-${d.padStart(2,'0')}`;
-                }
-                if (key === 'Municipality' && row['Region'] === 'National Capital Region') {
-                    const ld = row['LegislativeDistrict'] || '';
-                    cellValue = ld.replace(/^[^(]+\(([^)]+)\).*$/, '$1').trim();
-                }
-                html += `<td class="${colClass}">${cellValue}</td>`;
-                console.log(Object.keys(data[0]))
-            });
-
-            // Retrieve lat/lng silently for map button
-            const latKey = keys.find(k => k.toLowerCase() === 'latitude');
-            const lonKey = keys.find(k => k.toLowerCase() === 'longitude');
-            const lat = latKey ? row[latKey] : null;
-            const lon = lonKey ? row[lonKey] : null;
-
-            if (lat !== null && lon !== null && lat !== '' && lon !== '') {
-                const municipality = row['Municipality'] || 'Project Location';
-                html += `<td><button class="show-map-btn" style="background: none; border: none; cursor: pointer; fill: white;" onclick="window.open('map-preview.php?lat=${encodeURIComponent(lat)}&lon=${encodeURIComponent(lon)}&municipality=${encodeURIComponent(municipality)}', 'MapPopup', 'width=800,height=600,resizable=yes')"><img src="images/map2.svg" alt="Show Map" style="width: 30px; height: 30px;"></button></td>`;
-            } else {
-                html += '<td>N/A</td>';
-            }
-
-            html += '</tr>';
-        });
-
-        html += '</tbody></table>';
-        resultsTable.innerHTML = html;
-    } else {
+    if (data.length === 0) {
         resultsTable.innerHTML = '<div class="empty-state"><p>No projects found matching your search.</p></div>';
+        return;
     }
+
+    const totalPages = Math.ceil(data.length / ROWS_PER_PAGE);
+    const start = (page - 1) * ROWS_PER_PAGE;
+    const pageData = data.slice(start, start + ROWS_PER_PAGE);
+
+    const keys = Object.keys(data[0]);
+    const visibleKeys = keys.filter(k => !['latitude', 'longitude', 'legislativedistrict'].includes(k.toLowerCase()));
+    const isNCR = data[0]['Region'] === 'National Capital Region';
+
+    let html = '<table><thead><tr>';
+    visibleKeys.forEach(key => {
+        let label = getDisplayName(key);
+        if (isNCR && key === 'Province') label = 'City';
+        if (isNCR && key === 'Municipality') label = 'District';
+        html += `<th>${label}</th>`;
+    });
+    html += '<th>Map</th></tr></thead><tbody>';
+
+    pageData.forEach(row => {
+        html += '<tr>';
+        visibleKeys.forEach(key => {
+            const colClass = `col-${key.toLowerCase()}`;
+            let cellValue = row[key];
+            if (key === 'ContractCost') cellValue = '₱' + Number(cellValue).toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            if (key === 'StartDate' && cellValue) {
+                const [m, d, y] = cellValue.split('/');
+                cellValue = `${y}-${m.padStart(2,'0')}-${d.padStart(2,'0')}`;
+            }
+            if (key === 'Municipality' && row['Region'] === 'National Capital Region') {
+                const ld = row['LegislativeDistrict'] || '';
+                cellValue = ld.replace(/^[^(]+\(([^)]+)\).*$/, '$1').trim();
+            }
+            html += `<td class="${colClass}">${cellValue}</td>`;
+        });
+
+        const latKey = keys.find(k => k.toLowerCase() === 'latitude');
+        const lonKey = keys.find(k => k.toLowerCase() === 'longitude');
+        const lat = latKey ? row[latKey] : null;
+        const lon = lonKey ? row[lonKey] : null;
+
+        if (lat !== null && lon !== null && lat !== '' && lon !== '') {
+            const municipality = row['Municipality'] || 'Project Location';
+            html += `<td><button class="show-map-btn" style="background: none; border: none; cursor: pointer; fill: white;" onclick="window.open('map-preview.php?lat=${encodeURIComponent(lat)}&lon=${encodeURIComponent(lon)}&municipality=${encodeURIComponent(municipality)}', 'MapPopup', 'width=800,height=600,resizable=yes')"><img src="images/map2.svg" alt="Show Map" style="width: 30px; height: 30px;"></button></td>`;
+        } else {
+            html += '<td>N/A</td>';
+        }
+        html += '</tr>';
+    });
+
+    html += '</tbody></table>';
+    html += `<div class="pagination">
+        <button onclick="renderPage(1)" ${page === 1 ? 'disabled' : ''}>«</button>
+        <button onclick="renderPage(${page - 1})" ${page === 1 ? 'disabled' : ''}>‹</button>
+        <span>Page ${page} of ${totalPages} <small>(${data.length} projects)</small></span>
+        <button onclick="renderPage(${page + 1})" ${page === totalPages ? 'disabled' : ''}>›</button>
+        <button onclick="renderPage(${totalPages})" ${page === totalPages ? 'disabled' : ''}>»</button>
+    </div>`;
+
+    resultsTable.innerHTML = html;
 }
 
 // Filters currentData by municipality search term and re-renders
 function applyMunicipalityFilter() {
     const query = municipalitySearch.value.trim().toLowerCase();
     if (!query) {
+        currentPage = 1;
         renderTable(currentData);
         return;
     }
@@ -140,7 +157,15 @@ function fetchAndDisplay(field, value) {
     fetch(`api/flood-control.php?field=${encodeURIComponent(field)}&value=${encodeURIComponent(value)}`)
         .then(res => res.json())
         .then(data => {
-            currentData = data;
+            currentData = data.sort((a, b) => {
+            const parse = d => {
+                    if (!d) return new Date(0);
+                    const [m, day, y] = d.split('/');
+                    return new Date(`${y}-${m}-${day}`);
+                };
+                return parse(a['StartDate']) - parse(b['StartDate']);
+            });
+            currentPage = 1;
             renderTable(currentData);
         })
         .catch(err => {
@@ -169,24 +194,10 @@ regionSelect.addEventListener('change', () => {
         provinceSelect.innerHTML = '<option value="">Select City</option>';
         document.getElementById('provinceLabel').textContent = 'City';
         municipalityLabel.textContent = 'Search District';
-
-        const uniqueCities = [...new Set(allProvinces
-            .filter(p => p.psgc_id.substring(0, 2) === NCR_PREFIX)
-            .map(p => p.name)
-        )].sort();
-
-        fetch(`api/flood-control.php?field=Region&value=National Capital Region`)
-            .then(res => res.json())
-            .then(data => {
-                const uniqueCities = [...new Set(data.map(row => row['Province']).filter(Boolean))].sort();
-                uniqueCities.forEach(city => {
-                    provinceSelect.innerHTML += `<option value="${city}">${city}</option>`;
-                });
-                provinceSelect.disabled = false;
-            })
-            .catch(() => {
-                resultsTable.innerHTML = '<div class="empty-state"><p>Error loading NCR cities.</p></div>';
-            });
+        ncrCities.forEach(city => {
+            provinceSelect.innerHTML += `<option value="${city}">${city}</option>`;
+        });
+        provinceSelect.disabled = false;
     } else {
         // Standard regions — populate provinces as usual
         provinceSelect.innerHTML = '<option value="">Select Province</option>';
