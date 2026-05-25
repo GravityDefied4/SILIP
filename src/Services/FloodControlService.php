@@ -39,7 +39,8 @@
                 'ContractCost',
                 'Contractor', 
                 'StartDate',
-                'CompletionDateActual'
+                'CompletionDateActual',
+                'LegislativeDistrict'
             ];
             
             $filteredAttributes = [];

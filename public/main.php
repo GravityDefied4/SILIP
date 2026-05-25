@@ -46,7 +46,7 @@
             </label>
 
             <label for="municipalitySearch">
-                Search Municipality
+                <span id="municipalityLabel">Search Municipality</span>
                 <input
                     type="text"
                     id="municipalitySearch"

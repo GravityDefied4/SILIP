@@ -1,5 +1,6 @@
 const regionSelect = document.getElementById('region');
 const provinceSelect = document.getElementById('province');
+const municipalityLabel = document.getElementById('municipalityLabel');
 const municipalitySearch = document.getElementById('municipalitySearch');
 const resultsTable = document.getElementById('resultsTable');
 let allRegions = [];
@@ -61,10 +62,16 @@ Promise.all([
 function renderTable(data) {
     if (data.length > 0) {
         const keys = Object.keys(data[0]);
-        const visibleKeys = keys.filter(k => !['latitude', 'longitude'].includes(k.toLowerCase()));
+        const visibleKeys = keys.filter(k => !['latitude', 'longitude', 'legislativedistrict'].includes(k.toLowerCase()));
+        const isNCR = data.length > 0 && data[0]['Region'] === 'National Capital Region';
 
         let html = '<table><thead><tr>';
-        visibleKeys.forEach(key => html += `<th>${getDisplayName(key)}</th>`);
+        visibleKeys.forEach(key => {
+            let label = getDisplayName(key);
+            if (isNCR && key === 'Province') label = 'City';
+            if (isNCR && key === 'Municipality') label = 'District';
+            html += `<th>${label}</th>`;
+        });
         html += '<th>Map</th>';
         html += '</tr></thead><tbody>';
 
@@ -80,7 +87,12 @@ function renderTable(data) {
                     const [m, d, y] = cellValue.split('/');
                     cellValue = `${y}-${m.padStart(2,'0')}-${d.padStart(2,'0')}`;
                 }
+                if (key === 'Municipality' && row['Region'] === 'National Capital Region') {
+                    const ld = row['LegislativeDistrict'] || '';
+                    cellValue = ld.replace(/^[^(]+\(([^)]+)\).*$/, '$1').trim();
+                }
                 html += `<td class="${colClass}">${cellValue}</td>`;
+                console.log(Object.keys(data[0]))
             });
 
             // Retrieve lat/lng silently for map button
@@ -114,8 +126,9 @@ function applyMunicipalityFilter() {
         return;
     }
     const filtered = currentData.filter(row => {
-        const municipality = (row['Municipality'] || '').toLowerCase();
-        return municipality.includes(query);
+        const isNCR = row['Region'] === 'National Capital Region';
+        const searchVal = isNCR ? (row['LegislativeDistrict'] || '') : (row['Municipality'] || '');
+        return searchVal.toLowerCase().includes(query);
     });
     renderTable(filtered);
 }
@@ -153,14 +166,21 @@ regionSelect.addEventListener('change', () => {
     const isNCR = prefix === NCR_PREFIX;
 
     if (isNCR) {
-        // NCR has no provinces — load cities directly into the second dropdown
         provinceSelect.innerHTML = '<option value="">Select City</option>';
+        document.getElementById('provinceLabel').textContent = 'City';
+        municipalityLabel.textContent = 'Search District';
 
-        fetch(`api/psgc.php?type=cities&region=${encodeURIComponent(regionSelect.value)}`)
+        const uniqueCities = [...new Set(allProvinces
+            .filter(p => p.psgc_id.substring(0, 2) === NCR_PREFIX)
+            .map(p => p.name)
+        )].sort();
+
+        fetch(`api/flood-control.php?field=Region&value=National Capital Region`)
             .then(res => res.json())
-            .then(cities => {
-                cities.forEach(city => {
-                    provinceSelect.innerHTML += `<option value="${city.psgc_id}">${city.name}</option>`;
+            .then(data => {
+                const uniqueCities = [...new Set(data.map(row => row['Province']).filter(Boolean))].sort();
+                uniqueCities.forEach(city => {
+                    provinceSelect.innerHTML += `<option value="${city}">${city}</option>`;
                 });
                 provinceSelect.disabled = false;
             })
@@ -170,6 +190,8 @@ regionSelect.addEventListener('change', () => {
     } else {
         // Standard regions — populate provinces as usual
         provinceSelect.innerHTML = '<option value="">Select Province</option>';
+        document.getElementById('provinceLabel').textContent = 'Province';
+        municipalityLabel.textContent = 'Search Municipality';
         allProvinces.filter(prov => prov.psgc_id.substring(0, 2) === prefix)
             .forEach(prov => {
                 provinceSelect.innerHTML += `<option value="${prov.psgc_id}">${prov.name}</option>`;
@@ -178,7 +200,9 @@ regionSelect.addEventListener('change', () => {
     }
 
     // Show all projects for the selected region immediately
-    fetchAndDisplay('Region', regionSelect.options[regionSelect.selectedIndex].text);
+    if (!isNCR) {
+        fetchAndDisplay('Region', regionSelect.options[regionSelect.selectedIndex].text);
+    }
 });
 
 provinceSelect.addEventListener('change', () => {
@@ -189,14 +213,5 @@ provinceSelect.addEventListener('change', () => {
 
     if (!provinceSelect.value) return;
 
-    const prefix = regionSelect.value.substring(0, 2);
-    const isNCR = prefix === NCR_PREFIX;
-
-    if (isNCR) {
-        // In NCR the second dropdown holds cities, filter by Municipality
-        fetchAndDisplay('Municipality', provinceSelect.options[provinceSelect.selectedIndex].text);
-    } else {
-        // Standard flow — filter by Province
-        fetchAndDisplay('Province', provinceSelect.options[provinceSelect.selectedIndex].text);
-    }
+    fetchAndDisplay('Province', provinceSelect.options[provinceSelect.selectedIndex].text);
 });
