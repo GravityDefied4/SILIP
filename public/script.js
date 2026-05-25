@@ -123,7 +123,7 @@ function renderPage(page) {
     });
 
     html += '</tbody></table>';
-    html += `<div class="pagination">
+    html += `<div class="pagination" style="margin-top: 1rem; display: flex; justify-content: center; align-items: center; gap: 0.5rem; font-family: 'Poppins', sans-serif; font-size: 3rem;">
         <button onclick="renderPage(1)" ${page === 1 ? 'disabled' : ''}>«</button>
         <button onclick="renderPage(${page - 1})" ${page === 1 ? 'disabled' : ''}>‹</button>
         <span>Page ${page} of ${totalPages} <small>(${data.length} projects)</small></span>

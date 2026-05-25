@@ -21,13 +21,13 @@
 
     <!-- Header -->
     <header class="header">
-        <a href="/SILIP/public" class="header-title">Project SILIP</a>
+        <h1 href="" class="logo">Project<img src="images/logo1.png" alt="" class="header-logo"></h1>
         <a href="/SILIP/public/auth/logout"><button class="gradient-btn">Logout</button></a>
     </header>
 
     <!-- Main Content -->
     <div class="container">
-        <h1>Flood Control Projects</h1>
+        <h1 class="container-title" style="text-align:center; font-family: 'Poppins', sans-serif; font-size: 5rem; margin-bottom: 2rem; color: var(--text-color); font-weight: 600; margin-top: 50px;">Flood Control Projects</h1>
 
         <!-- Filters -->
         <div class="dropdown-container">

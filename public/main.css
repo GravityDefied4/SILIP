@@ -44,6 +44,9 @@ body {
     z-index: 1000;
     box-shadow: 5px 10px 10px rgba(0, 0, 0, 0.248);
 }
+.header a {
+    text-decoration: none;
+}
 
 .header-logo{
     width: 80px;
@@ -58,6 +61,7 @@ body {
     cursor: pointer;
     transition: 0.3s ease-in-out;
     margin-bottom: 5px;
+    text-decoration: none;
 }
 .gradient-btn{
     font-family: "Poppins", sans-serif;
@@ -86,7 +90,7 @@ body {
 }
 
 .header-title {
-    font-family: 'Syne', sans-serif;
+    font-family: 'Poppins', sans-serif;
     font-size: 2rem;
     color: var(--text-color);
     text-decoration: none;
@@ -101,14 +105,26 @@ body {
     max-width: 1200px;
     margin: 2rem auto;
     padding: 0 2rem;
+    text-align: center;
+    display: block;
+    
+}
+
+.container-title {
+    display: block;
+    width: 100%;
+    text-align: center;
+    
 }
 
 h1 {
-    font-family: 'Syne', sans-serif;
+    font-family: 'Poppins', sans-serif;
     font-size: 2.5rem;
     margin-bottom: 2rem;
     color: var(--text-color);
 }
+
+
 
 /* Dropdown Container */
 .dropdown-container {
@@ -197,6 +213,7 @@ td {
     border-bottom: 1px solid rgba(255, 255, 255, 0.08);
     font-size: 1.2rem;
     color: var(--second-text-color);
+    text-align: left;
 }
 
 tr:hover {
@@ -276,4 +293,45 @@ td.col-contractor {
     max-width: 160px;
     word-wrap: break-word;
     overflow-wrap: break-word;
+}
+
+.pagination {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    margin: 1.5rem auto;
+    max-width: fit-content;
+    border-radius: 1rem;
+    
+}
+
+.pagination button {
+    padding: 0.85rem 1.2rem;
+    font-size: 1.1rem;
+    cursor: pointer;
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    border-radius: 0.85rem;
+    background: rgba(255, 255, 255, 0.08);
+    color: var(--text-color);
+    transition: transform 0.2s ease, background 0.2s ease, border-color 0.2s ease;
+}
+
+.pagination button:hover:not(:disabled) {
+    background: rgba(255, 255, 255, 0.16);
+    border-color: rgba(47, 93, 140, 0.5);
+    transform: translateY(-1px);
+}
+
+.pagination span {
+    font-size: 1rem;
+    color: var(--second-text-color);
+    white-space: nowrap;
+}
+
+.pagination button:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+    background: rgba(255, 255, 255, 0.04);
 }
