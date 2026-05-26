@@ -25,8 +25,9 @@ if ($token !== '') {
 ?>
 <style>
   #silip-user-bar {
+    margin: 10px;
     position: fixed; top: 0; right: 0;
-    background: rgba(0,0,0,0.6); color: #fff;
+    background: none;
     padding: 6px 14px; font-size: 13px;
     z-index: 9999; border-bottom-left-radius: 6px;
     font-family: sans-serif;
@@ -34,7 +35,3 @@ if ($token !== '') {
   #silip-user-bar a { color: #f87171; margin-left: 12px; text-decoration: none; }
   #silip-user-bar a:hover { text-decoration: underline; }
 </style>
-<div id="silip-user-bar">
-  👤 <?= htmlspecialchars($name) ?>
-  <a href="/SILIP/public/auth/logout">Logout</a>
-</div>

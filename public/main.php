@@ -1,4 +1,5 @@
 <?php
+    require 'auth/user-bar.php';
     // ── Auth routing ──────────────────────────────────────
     $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
     $uri = rtrim($uri, '/');
@@ -22,7 +23,11 @@
     <!-- Header -->
     <header class="header">
         <h1 href="" class="logo">Project<img src="images/logo1.png" alt="" class="header-logo"></h1>
-        <a href="/SILIP/public/auth/logout"><button class="gradient-btn">Logout</button></a>
+        <div id="silip-user-bar">
+            <?= htmlspecialchars($name) ?>
+            <a href="/SILIP/public/auth/logout"><button class="gradient-btn">Logout</button></a>
+        </div>
+        
     </header>
 
     <!-- Main Content -->
