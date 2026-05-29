@@ -17,13 +17,21 @@ if ($token !== '') {
 ?>
 <style>
   #silip-user-bar {
-    margin: 10px;
-    position: fixed; top: 0; right: 0;
-    background: none;
-    padding: 6px 14px; font-size: 13px;
-    z-index: 9999; border-bottom-left-radius: 6px;
-    font-family: sans-serif;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0;
+    margin: 0;
+    font-size: 1.4rem;
+    color: inherit;
+    font-family: inherit;
   }
-  #silip-user-bar a { color: #f87171; margin-left: 12px; text-decoration: none; }
-  #silip-user-bar a:hover { text-decoration: underline; }
+  #silip-user-bar a {
+    color: inherit;
+    margin-left: 0;
+    text-decoration: none;
+  }
+  #silip-user-bar a:hover {
+    text-decoration: underline;
+  }
 </style>
