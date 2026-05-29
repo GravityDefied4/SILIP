@@ -1,9 +1,4 @@
 <?php
-/**
- * login-tracker.php — Records or updates a user's login entry.
- * Call silip_track_login($name, $email) after a successful OAuth login.
- */
-
 require_once __DIR__ . '/db.php';
 
 function silip_track_login(string $name, string $email): void {

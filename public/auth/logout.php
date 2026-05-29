@@ -7,6 +7,6 @@ setcookie('silip_jwt', '', [
     'samesite' => 'Lax',
 ]);
 
-// Redirect to the main page (or a "logged out" page)
+// Redirect to main page
 header('Location: /SILIP/public/');
 exit;

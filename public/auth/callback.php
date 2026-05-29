@@ -6,7 +6,7 @@ use Firebase\JWT\JWT;
 $dotenv = Dotenv\Dotenv::createImmutable(dirname(__DIR__, 2));
 $dotenv->load();
 
-// ── CSRF state check ──────────────────────────────────────────────────────────
+// CSRF state check
 $receivedState = $_GET['state'] ?? '';
 $storedState   = $_COOKIE['oauth_state'] ?? '';
 
@@ -18,7 +18,7 @@ if ($receivedState === '' || !hash_equals($storedState, $receivedState)) {
 // Clear the one-time state cookie
 setcookie('oauth_state', '', time() - 3600, '/', '', false, true);
 
-// ── Exchange code for token ───────────────────────────────────────────────────
+// Exchange code for token
 $code = $_GET['code'] ?? '';
 if ($code === '') {
     http_response_code(400);
@@ -39,12 +39,12 @@ try {
     exit('Failed to retrieve user from Google: ' . htmlspecialchars($e->getMessage()));
 }
 
-// ── Issue JWT ─────────────────────────────────────────────────────────────────
+// Issue JWT
 $now     = time();
 $payload = [
     'iss'     => 'silip',
     'iat'     => $now,
-    'exp'     => $now + 3600 * 8,          // 8-hour session
+    'exp'     => $now + 3600 * 8,
     'sub'     => $googleUser->getId(),
     'email'   => $googleUser->getEmail(),
     'name'    => $googleUser->getName(),
@@ -62,9 +62,8 @@ setcookie('silip_jwt', $jwt, [
     'path'     => '/',
     'httponly' => true,
     'samesite' => 'Lax',
-    // 'secure' => true,   // uncomment when serving over HTTPS
 ]);
 
-// Redirect to the main app
+// Redirect to main page
 header('Location: /SILIP/public/main.php');
 exit;

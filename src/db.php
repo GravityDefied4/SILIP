@@ -1,9 +1,4 @@
 <?php
-/**
- * db.php — Returns a shared PDO instance.
- * Usage: $pdo = silip_db();
- */
-
 function silip_db(): PDO {
     static $pdo = null;
 
